@@ -191,15 +191,15 @@ void QuadTreeNode::kNNQuery(array<float, 2> q, map<string, double> &stats, int k
         } else break;
     }
 
-    while (!knnPts.empty()) {
+    /*while (!knnPts.empty()) {
         cout << knnPts.top().pt[0] << " "  << knnPts.top().pt[1] << " dist: " << knnPts.top().dist << " id:" << knnPts.top().id << endl;
         knnPts.pop();
-    }
+    }*/
 }
 
 void QuadTreeNode::snapshot() {
     ofstream log("QuadTree.csv", ios_base::app);
-    log << this->level << "," << this->data.size() << "," << this->box[XLOW] << ","
+    log << this->level << "," << this->isLeaf() << "," << this->data.size() << "," << this->box[XLOW] << ","
         	<< this->box[YLOW] << "," << this->box[XHIGH] << "," << this->box[YHIGH] << endl;
     log.close();
 
@@ -213,10 +213,9 @@ void QuadTreeNode::count(int &p, int &d, int &dpc, int &pc) {
         p++;
         dpc += this->data.size();
         return;
-    } else {
-        d++;
-        pc += this->children.size();
     }
+    d++;
+    pc += this->children.size();
 
     for (auto c: children) c->count(p, d, dpc, pc);
 }
@@ -240,7 +239,7 @@ void QuadTreeNode::getTreeHeight(int &h){
 }
 
 void QuadTreeNode::deleteTree(){
-    if ( this->isLeaf() ) {
+    if (this->isLeaf()) {
         for (auto c: children) c->deleteTree();
     }
     delete this;
