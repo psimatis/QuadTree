@@ -37,18 +37,24 @@ void QuadTreeNode::packing() {
 
 void QuadTreeNode::insert(Record r){
     if (!inBoundary(r)) return;
-    if (this->data.size() < this->capacity) this->data.push_back(r);
-    else{
-        if (this->isLeaf()) this->divide();
 
-        for (auto rec: this->data){
-            for (auto c: children)
-                c->insert(rec);
+    if (this->isLeaf()){
+    	if (this->data.size() < this->capacity){
+    		this->data.push_back(r);
+    		return;
+    	}
+		else {
+			this->divide();
+        	for (auto rec: this->data){
+            	for (auto c: this->children)
+                	c->insert(rec);
+        	}
+        	this->data.clear();
         }
-        this->data.clear();
-        for (auto c: children) c->insert(r);
     }
+    for (auto c: this->children) c->insert(r);
 }
+
 
 void QuadTreeNode::divide(){
 
