@@ -194,10 +194,12 @@ void QuadTreeNode::kNNQuery(array<float, 2> q, map<string, double> &stats, int k
 void QuadTreeNode::snapshot() {
     ofstream log("QuadTree.csv", ios_base::app);
     log << this->level << "," << this->data.size() << "," << this->box[XLOW] << ","
-        << this->box[YLOW] << "," << this->box[XHIGH] << "," << this->box[YHIGH] << endl;
+        	<< this->box[YLOW] << "," << this->box[XHIGH] << "," << this->box[YHIGH] << endl;
     log.close();
 
-    for (auto c: children) c->snapshot();
+    if (!this->isLeaf()) {
+    	for (auto c: children) c->snapshot();
+	}
 }
 
 void QuadTreeNode::count(int &p, int &d, int &dpc, int &pc) {
