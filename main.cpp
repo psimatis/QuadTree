@@ -13,11 +13,12 @@ int main(int argc, char **argv){
     }
 
     int capacity = atoi(argv[1]);
+	int limit = atoi(argv[3]);
 
     vector<float> boundary = {-180.0, -90.0,180.0,90.0};
 
     Input dataset, queries;
-    dataset.loadData(argv[2], atoi(argv[3]));
+    dataset.loadData(argv[2], limit);
     queries.loadQueries(argv[4]);
 
     high_resolution_clock::time_point startTime = high_resolution_clock::now();
@@ -44,6 +45,7 @@ int main(int argc, char **argv){
         else if (q.type == 'k') {
             map<string, double> stats;
             auto kNNPoint = q.toKNNPoint();
+			cout << "knn" << endl;
             startTime = high_resolution_clock::now();
             tree->kNNQuery(kNNPoint, stats, q.id);
             knnLog["time " + to_string(q.id)] += duration_cast<microseconds>(

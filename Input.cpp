@@ -47,7 +47,6 @@ void Input::loadData(const char *filename, int limit){
         count++;
     }
     file.close();
-    //this->numRecords = this->size();
 }
 
 void Input::loadQueries(const char *filename){
@@ -72,7 +71,6 @@ void Input::loadQueries(const char *filename){
         }
     }
     file.close();
-    //this->numRecords = this->size();
 }
 
 bool Record::operator < (const Record& b) const {

@@ -86,13 +86,19 @@ void QuadTreeNode::divide(){
 
 bool QuadTreeNode::inBoundary(Record r){
     return !(this->box[XLOW] >= r.box[XHIGH] || this->box[XHIGH] < r.box[XLOW]
-            || this->box[YLOW] >= r.box[YHIGH] || this->box[YHIGH] < r.box[YLOW]);
+    || this->box[YLOW] >= r.box[YHIGH] || this->box[YHIGH] < r.box[YLOW]);
+}
+
+bool QuadTreeNode::intersects(Record q){
+	return !(this->box[XLOW] > q.box[XHIGH] || q.box[XLOW] > this->box[XHIGH]
+	|| this->box[YLOW] > q.box[YHIGH] || q.box[YLOW] > this->box[YHIGH]);
 }
 
 void QuadTreeNode::rangeQuery(Record q, vector<float> &resultItemsIds, map<string, double> &stats) {
     if (!inBoundary(q)) return;
     if (this->isLeaf()) {
-        if (q.box[XHIGH] > this->box[XLOW] || q.box[XLOW] < this->box[XHIGH] || q.box[YHIGH] > this->box[YLOW] || q.box[YLOW] < this->box[YHIGH] ){
+        //if (q.box[XHIGH] > this->box[XLOW] || q.box[XLOW] < this->box[XHIGH] || q.box[YHIGH] > this->box[YLOW] || q.box[YLOW] < this->box[YHIGH] ){
+		if (this->intersects(q)) {
             stats["leaf"]++;
             for (auto r: this->data){
                 if (!r.inBoundary(q)) continue;
@@ -191,10 +197,10 @@ void QuadTreeNode::kNNQuery(array<float, 2> q, map<string, double> &stats, int k
         } else break;
     }
 
-    /*while (!knnPts.empty()) {
+    while (!knnPts.empty()) {
         cout << knnPts.top().pt[0] << " "  << knnPts.top().pt[1] << " dist: " << knnPts.top().dist << " id:" << knnPts.top().id << endl;
         knnPts.pop();
-    }*/
+    }
 }
 
 void QuadTreeNode::snapshot() {
@@ -259,7 +265,7 @@ void QuadTreeNode::getStatistics() {
     cout << "Directories: " << directories << endl;
     cout << "Data points: " << dataPoints << endl;
     cout << "Internal pointers: " << pointers << endl;
-    this->snapshot();
+    //this->snapshot();
 }
 
 QuadTreeNode::~QuadTreeNode(){}
