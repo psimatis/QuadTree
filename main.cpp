@@ -34,7 +34,7 @@ int main(int argc, char **argv){
             map<string, double> stats;
             startTime = high_resolution_clock::now();
             tree->rangeQuery(q, results, stats);
-            cout << "results count: " << results.size() << endl;
+            //cout << "results count: " << results.size() << endl;
             rangeLog["time " + to_string(q.id)] += duration_cast<microseconds>(
                     high_resolution_clock::now() - startTime).count();
             rangeLog["count " + to_string(q.id)]++;
@@ -45,7 +45,7 @@ int main(int argc, char **argv){
         else if (q.type == 'k') {
             map<string, double> stats;
             auto kNNPoint = q.toKNNPoint();
-			cout << "knn" << endl;
+			//cout << "knn" << endl;
             startTime = high_resolution_clock::now();
             tree->kNNQuery(kNNPoint, stats, q.id);
             knnLog["time " + to_string(q.id)] += duration_cast<microseconds>(

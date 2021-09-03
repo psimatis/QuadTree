@@ -2,8 +2,8 @@
 #define QUADTREE_DEF_H
 
 // Comment accordingly to select your preferred split strategy
-//#define POINT_SPLIT true     // Optimized Point-Quad-Tree: splits the bucket on the median point
-#define POINT_SPLIT false    // Point-Region-Quad-Tree: divides the bucket to equal sized regions
+#define POINT_SPLIT true     // Optimized Point-Quad-Tree: splits the bucket on the median point
+//#define POINT_SPLIT false    // Point-Region-Quad-Tree: divides the bucket to equal sized regions
 
 #define XLOW 0
 #define YLOW 1

@@ -39,11 +39,11 @@ void Input::loadData(const char *filename, int limit){
     string line;
     int count = 0;
     while (getline( file, line ) ){
+        if (count == limit && limit != -1) break;
         istringstream buf(line);
         float x, y, id;
         buf >> id >> x >> y;
         this->emplace_back(id, vector<float>({x,y}));
-        if (count == limit && limit != -1) break;
         count++;
     }
     file.close();

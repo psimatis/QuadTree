@@ -14,45 +14,54 @@ bool QuadTreeNode::isLeaf(){
     return false;
 }
 
-
 void QuadTreeNode::packing(Input &R) {
-    for (auto r: R) {
-        if (inBoundary(r))
-            this->data.push_back(r);
-    }
-    this->packing();
+    for (auto r: R) data.push_back(r);
+    packing();
 }
 
 void QuadTreeNode::packing() {
-    if (this->data.size() > this->capacity){
-        if (this->isLeaf()) this->divide();
-        for (auto r: this->data) {
-            for (auto c: children)
-                if (c->inBoundary(r)) c->data.push_back(r);
+    if (data.size() > capacity){
+        if (isLeaf()) divide();
+        for (auto r: data) {
+            for (auto c: children) {
+                if (c->inBoundary(r)) {
+                    c->data.push_back(r);
+                    break;
+                }
+            }
         }
-        this->data.clear();
+        data.clear();
         for (auto c: children) c->packing();
     }
 }
 
 void QuadTreeNode::insert(Record r){
-    if (!inBoundary(r)) return;
 
-    if (this->isLeaf()){
-    	if (this->data.size() < this->capacity){
-    		this->data.push_back(r);
+    if (isLeaf()){
+    	if (data.size() < capacity){
+    		data.push_back(r);
     		return;
     	}
 		else {
-			this->divide();
-        	for (auto rec: this->data){
-            	for (auto c: this->children)
-                	c->insert(rec);
+			divide();
+        	for (auto rec: data){
+        	    bool insert = false;
+            	for (auto c: children) {
+                    if (c->inBoundary(rec)) {
+                        c->insert(rec);
+                        insert = true;
+                        break;
+                    }
+                }
+            	if (insert == false) cerr << rec.box[0] << " " << rec.box[1] << " not inserted to "
+            	                    << box[0] << " " << box[1] << " " << box[2] << " " << box[3] << endl;
         	}
-        	this->data.clear();
+        	data.clear();
+            return;
         }
     }
-    for (auto c: this->children) c->insert(r);
+    for (auto c: children)
+        if (c->inBoundary(r)) c->insert(r);
 }
 
 
@@ -84,9 +93,18 @@ void QuadTreeNode::divide(){
     this->children[SE] = new QuadTreeNode(southEast, this->capacity, this->level+1);
 }
 
+/*bool QuadTreeNode::inBoundary(Record r){
+    return !(this->box[XLOW] > r.box[XHIGH] || this->box[XHIGH] < r.box[XLOW]
+    || this->box[YLOW] > r.box[YHIGH] || this->box[YHIGH] < r.box[YLOW]);
+}*/
+
+// rename to cover
 bool QuadTreeNode::inBoundary(Record r){
-    return !(this->box[XLOW] >= r.box[XHIGH] || this->box[XHIGH] < r.box[XLOW]
-    || this->box[YLOW] >= r.box[YHIGH] || this->box[YHIGH] < r.box[YLOW]);
+    if (box[XLOW] <= r.box[XLOW] &&
+        box[XHIGH] >= r.box[XLOW] &&
+        box[YLOW] <= r.box[YLOW] &&
+        box[YHIGH] >= r.box[YLOW]) return true;
+    return false;
 }
 
 bool QuadTreeNode::intersects(Record q){
@@ -97,7 +115,6 @@ bool QuadTreeNode::intersects(Record q){
 void QuadTreeNode::rangeQuery(Record q, vector<float> &resultItemsIds, map<string, double> &stats) {
     if (!inBoundary(q)) return;
     if (this->isLeaf()) {
-        //if (q.box[XHIGH] > this->box[XLOW] || q.box[XLOW] < this->box[XHIGH] || q.box[YHIGH] > this->box[YLOW] || q.box[YLOW] < this->box[YHIGH] ){
 		if (this->intersects(q)) {
             stats["leaf"]++;
             for (auto r: this->data){
@@ -197,10 +214,10 @@ void QuadTreeNode::kNNQuery(array<float, 2> q, map<string, double> &stats, int k
         } else break;
     }
 
-    while (!knnPts.empty()) {
+    /*while (!knnPts.empty()) {
         cout << knnPts.top().pt[0] << " "  << knnPts.top().pt[1] << " dist: " << knnPts.top().dist << " id:" << knnPts.top().id << endl;
         knnPts.pop();
-    }
+    }*/
 }
 
 void QuadTreeNode::snapshot() {
