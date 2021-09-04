@@ -15,7 +15,7 @@ int main(int argc, char **argv){
     int capacity = atoi(argv[1]);
 	int limit = atoi(argv[3]);
 
-    vector<float> boundary = {-180.0, -90.0,180.0,90.0};
+    vector<float> boundary = {-180.0, -90.0, 180.0, 90.0};
 
     Input dataset, queries;
     dataset.loadData(argv[2], limit);
@@ -34,7 +34,8 @@ int main(int argc, char **argv){
             map<string, double> stats;
             startTime = high_resolution_clock::now();
             tree->rangeQuery(q, results, stats);
-            //cout << "results count: " << results.size() << endl;
+            cout << "results count: " << results.size() << endl;
+
             rangeLog["time " + to_string(q.id)] += duration_cast<microseconds>(
                     high_resolution_clock::now() - startTime).count();
             rangeLog["count " + to_string(q.id)]++;
@@ -45,7 +46,7 @@ int main(int argc, char **argv){
         else if (q.type == 'k') {
             map<string, double> stats;
             auto kNNPoint = q.toKNNPoint();
-			//cout << "knn" << endl;
+			cout << "knn" << endl;
             startTime = high_resolution_clock::now();
             tree->kNNQuery(kNNPoint, stats, q.id);
             knnLog["time " + to_string(q.id)] += duration_cast<microseconds>(
@@ -60,10 +61,6 @@ int main(int argc, char **argv){
             tree->insert(q);
             inLog["time"] += duration_cast<microseconds>(high_resolution_clock::now() - startTime).count();
             inLog["count"]++;
-        }
-        else {
-            cout << "Wrong query type given: " << q.type << endl;
-            exit(0);
         }
     }
     cout << "---Insertions---" << endl;

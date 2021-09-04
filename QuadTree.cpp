@@ -46,9 +46,9 @@ void QuadTreeNode::insert(Record r) {
             divide();
             for (auto rec : data) {
                 auto c = children.begin();
-                while (!(*c)->intersects(r))
+                while (!(*c)->intersects(rec))
                     c++;
-                (*c)->data.push_back(r);
+                (*c)->data.push_back(rec);
             }
             data.clear();
         }
@@ -86,37 +86,30 @@ void QuadTreeNode::divide() {
     children[SE] = new QuadTreeNode(southEast, capacity, level + 1);
 }
 
-/*bool QuadTreeNode::inBoundary(Record r){
-    return !(box[XLOW] > r.box[XHIGH] || box[XHIGH] < r.box[XLOW]
-    || box[YLOW] > r.box[YHIGH] || box[YHIGH] < r.box[YLOW]);
-}*/
-
-// rename to cover
-// bool QuadTreeNode::inBoundary(Record r) {}
-
 bool QuadTreeNode::intersects(Record q) {
     return !(box[XLOW] > q.box[XHIGH] || q.box[XLOW] > box[XHIGH] || box[YLOW] > q.box[YHIGH] ||
              q.box[YLOW] > box[YHIGH]);
 }
 
 void QuadTreeNode::rangeQuery(Record q, vector<float> &resultItemsIds, map<string, double> &stats) {
-    if (!intersects(q))
-        return;
     if (isLeaf()) {
         if (intersects(q)) {
             stats["leaf"]++;
             for (auto r : data) {
-                if (r.intersects(q)) {
-                    // cout << r.id << endl;
+                if (q.intersects(r)) {
+                    //cout << r.id << " " << r.box[XLOW] << " " << r.box[YLOW] << endl;
                     resultItemsIds.push_back(r.id);
                 }
             }
         }
         return;
+    } else {
+        stats["directory"]++;
+        for (auto c : children) {
+            if (c->intersects(q))
+                c->rangeQuery(q, resultItemsIds, stats);
+        }
     }
-    stats["directory"]++;
-    for (auto c : children)
-        c->rangeQuery(q, resultItemsIds, stats);
 }
 
 typedef struct knnPoint {
@@ -210,8 +203,9 @@ void QuadTreeNode::kNNQuery(array<float, 2> q, map<string, double> &stats, int k
     }
 
     while (!knnPts.empty()) {
-        cout << knnPts.top().pt[0] << " "  << knnPts.top().pt[1] << " dist: " << knnPts.top().dist
-    << " id:" << knnPts.top().id << endl; knnPts.pop();
+        cout << knnPts.top().pt[0] << " " << knnPts.top().pt[1] << " dist: " << knnPts.top().dist
+             << " id:" << knnPts.top().id << endl;
+        knnPts.pop();
     }
 }
 

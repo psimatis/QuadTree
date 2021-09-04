@@ -15,6 +15,7 @@ public:
     Record();
     Record(float id, vector<float>); // for data
     Record(char type, vector<float> boundary, float info); // for query
+	bool contains(Record);
     bool operator < (const Record& rhs) const;
     array<float, 2> toKNNPoint();
     ~Record();
