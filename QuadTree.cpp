@@ -3,124 +3,111 @@
 #define all(c) c.begin(), c.end()
 #define dist(x1, y1, x2, y2) (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
 
-QuadTreeNode::QuadTreeNode(vector<float> boundary, int capacity, int level){
-    this->capacity = capacity;
-    this->box = boundary;
-    this->level = level;
+QuadTreeNode::QuadTreeNode(vector<float> _boundary, int _capacity, int _level) {
+    capacity = _capacity;
+    box = _boundary;
+    level = _level;
 }
 
-bool QuadTreeNode::isLeaf(){
-    if (this->children[NW] == NULL) return true;
+bool QuadTreeNode::isLeaf() {
+    if (children[NW] == NULL)
+        return true;
     return false;
 }
 
 void QuadTreeNode::packing(Input &R) {
-    for (auto r: R) data.push_back(r);
+    for (auto r : R)
+        data.push_back(r);
     packing();
 }
 
 void QuadTreeNode::packing() {
-    if (data.size() > capacity){
-        if (isLeaf()) divide();
-        for (auto r: data) {
-            for (auto c: children) {
-                if (c->inBoundary(r)) {
+    if (data.size() > capacity) {
+        if (isLeaf())
+            divide();
+        for (auto r : data) {
+            for (auto c : children) {
+                if (c->intersects(r)) {
                     c->data.push_back(r);
                     break;
                 }
             }
         }
         data.clear();
-        for (auto c: children) c->packing();
+        for (auto c : children)
+            c->packing();
     }
 }
 
-void QuadTreeNode::insert(Record r){
-
-    if (isLeaf()){
-    	if (data.size() < capacity){
-    		data.push_back(r);
-    		return;
-    	}
-		else {
-			divide();
-        	for (auto rec: data){
-        	    bool insert = false;
-            	for (auto c: children) {
-                    if (c->inBoundary(rec)) {
-                        c->insert(rec);
-                        insert = true;
-                        break;
-                    }
-                }
-            	if (insert == false) cerr << rec.box[0] << " " << rec.box[1] << " not inserted to "
-            	                    << box[0] << " " << box[1] << " " << box[2] << " " << box[3] << endl;
-        	}
-        	data.clear();
-            return;
+void QuadTreeNode::insert(Record r) {
+    if (isLeaf()) {
+        data.push_back(r);
+        if (data.size() > capacity) {
+            divide();
+            for (auto rec : data) {
+                auto c = children.begin();
+                while (!(*c)->intersects(r))
+                    c++;
+                (*c)->data.push_back(r);
+            }
+            data.clear();
         }
+    } else {
+        auto c = children.begin();
+        while (!(*c)->intersects(r))
+            c++;
+        (*c)->insert(r);
     }
-    for (auto c: children)
-        if (c->inBoundary(r)) c->insert(r);
 }
 
+void QuadTreeNode::divide() {
 
-void QuadTreeNode::divide(){
-
-    vector<float> box = this->box;
     float xMid, yMid;
     if (POINT_SPLIT) {
-        this->data.sortData();
-        auto median = this->data[this->data.size() / 2];
+        data.sortData();
+        auto median = data[data.size() / 2];
         xMid = median.box[XLOW];
         yMid = median.box[YLOW];
-    }
-    else{
+    } else {
         xMid = (box[XHIGH] + box[XLOW]) / 2.0;
         yMid = (box[YHIGH] + box[YLOW]) / 2.0;
     }
 
     vector<float> northWest = {box[XLOW], yMid, xMid, box[YHIGH]};
-    this->children[NW] = new QuadTreeNode(northWest, this->capacity,this->level + 1);
+    children[NW] = new QuadTreeNode(northWest, capacity, level + 1);
 
     vector<float> northEast = {xMid, yMid, box[XHIGH], box[YHIGH]};
-    this->children[NE] = new QuadTreeNode(northEast, this->capacity, this->level + 1);
+    children[NE] = new QuadTreeNode(northEast, capacity, level + 1);
 
     vector<float> southWest = {box[XLOW], box[YLOW], xMid, yMid};
-    this->children[SW] = new QuadTreeNode(southWest, this->capacity, this->level+1);
+    children[SW] = new QuadTreeNode(southWest, capacity, level + 1);
 
     vector<float> southEast = {xMid, box[YLOW], box[XHIGH], yMid};
-    this->children[SE] = new QuadTreeNode(southEast, this->capacity, this->level+1);
+    children[SE] = new QuadTreeNode(southEast, capacity, level + 1);
 }
 
 /*bool QuadTreeNode::inBoundary(Record r){
-    return !(this->box[XLOW] > r.box[XHIGH] || this->box[XHIGH] < r.box[XLOW]
-    || this->box[YLOW] > r.box[YHIGH] || this->box[YHIGH] < r.box[YLOW]);
+    return !(box[XLOW] > r.box[XHIGH] || box[XHIGH] < r.box[XLOW]
+    || box[YLOW] > r.box[YHIGH] || box[YHIGH] < r.box[YLOW]);
 }*/
 
 // rename to cover
-bool QuadTreeNode::inBoundary(Record r){
-    if (box[XLOW] <= r.box[XLOW] &&
-        box[XHIGH] >= r.box[XLOW] &&
-        box[YLOW] <= r.box[YLOW] &&
-        box[YHIGH] >= r.box[YLOW]) return true;
-    return false;
-}
+// bool QuadTreeNode::inBoundary(Record r) {}
 
-bool QuadTreeNode::intersects(Record q){
-	return !(this->box[XLOW] > q.box[XHIGH] || q.box[XLOW] > this->box[XHIGH]
-	|| this->box[YLOW] > q.box[YHIGH] || q.box[YLOW] > this->box[YHIGH]);
+bool QuadTreeNode::intersects(Record q) {
+    return !(box[XLOW] > q.box[XHIGH] || q.box[XLOW] > box[XHIGH] || box[YLOW] > q.box[YHIGH] ||
+             q.box[YLOW] > box[YHIGH]);
 }
 
 void QuadTreeNode::rangeQuery(Record q, vector<float> &resultItemsIds, map<string, double> &stats) {
-    if (!inBoundary(q)) return;
-    if (this->isLeaf()) {
-		if (this->intersects(q)) {
+    if (!intersects(q))
+        return;
+    if (isLeaf()) {
+        if (intersects(q)) {
             stats["leaf"]++;
-            for (auto r: this->data){
-                if (!r.inBoundary(q)) continue;
-                else{
-                    //cout << r.id << endl;
+            for (auto r : data) {
+                if (r.intersects(q)) {
+                    // cout << r.id << endl;
                     resultItemsIds.push_back(r.id);
                 }
             }
@@ -128,7 +115,8 @@ void QuadTreeNode::rangeQuery(Record q, vector<float> &resultItemsIds, map<strin
         return;
     }
     stats["directory"]++;
-    for (auto c: children) c-> rangeQuery(q, resultItemsIds, stats);
+    for (auto c : children)
+        c->rangeQuery(q, resultItemsIds, stats);
 }
 
 typedef struct knnPoint {
@@ -151,17 +139,23 @@ double QuadTreeNode::minSqrDist(array<float, 4> r) const {
     bool bottom = r[3] < b[YLOW];
     bool top = b[YHIGH] < r[1];
     if (top) {
-        if (left) return dist(b[XLOW], b[YHIGH], r[2], r[1]);
-        if (right) return dist(b[XHIGH], b[YHIGH], r[0], r[1]);
+        if (left)
+            return dist(b[XLOW], b[YHIGH], r[2], r[1]);
+        if (right)
+            return dist(b[XHIGH], b[YHIGH], r[0], r[1]);
         return (r[1] - b[YHIGH]) * (r[1] - b[YHIGH]);
     }
     if (bottom) {
-        if (left) return dist(b[XLOW], b[YLOW], r[2], r[3]);
-        if (right) return dist(b[XHIGH], b[YLOW], r[0], r[3]);
+        if (left)
+            return dist(b[XLOW], b[YLOW], r[2], r[3]);
+        if (right)
+            return dist(b[XHIGH], b[YLOW], r[0], r[3]);
         return (b[YLOW] - r[3]) * (b[YLOW] - r[3]);
     }
-    if (left) return (b[XLOW] - r[2]) * (b[XLOW] - r[2]);
-    if (right) return (r[0] - b[XHIGH]) * (r[0] - b[XHIGH]);
+    if (left)
+        return (b[XLOW] - r[2]) * (b[XLOW] - r[2]);
+    if (right)
+        return (r[0] - b[XHIGH]) * (r[0] - b[XHIGH]);
     return 0;
 }
 
@@ -174,7 +168,7 @@ void QuadTreeNode::kNNQuery(array<float, 2> q, map<string, double> &stats, int k
     array<float, 4> query{q[0], q[1], q[0], q[1]};
     priority_queue<knnPoint, vector<knnPoint>> knnPts(all(tempPts));
     priority_queue<knnNode, vector<knnNode>> unseenNodes;
-    unseenNodes.emplace(knnNode{this, this->minSqrDist(query)});
+    unseenNodes.emplace(knnNode{this, minSqrDist(query)});
     double dist, minDist;
     QuadTreeNode *node;
 
@@ -185,7 +179,7 @@ void QuadTreeNode::kNNQuery(array<float, 2> q, map<string, double> &stats, int k
         minDist = knnPts.top().dist;
         if (dist < minDist) {
             if (node->isLeaf()) {
-                for (auto p : node->data){
+                for (auto p : node->data) {
                     minDist = knnPts.top().dist;
                     dist = calcSqrDist(query, p.toKNNPoint());
                     if (dist < minDist) {
@@ -200,7 +194,7 @@ void QuadTreeNode::kNNQuery(array<float, 2> q, map<string, double> &stats, int k
                 stats["leaf"]++;
             } else {
                 minDist = knnPts.top().dist;
-                for (auto c: node->children) {
+                for (auto c : node->children) {
                     dist = c->minSqrDist(query);
                     if (dist < minDist) {
                         knnNode kn;
@@ -211,70 +205,81 @@ void QuadTreeNode::kNNQuery(array<float, 2> q, map<string, double> &stats, int k
                 }
                 stats["directory"]++;
             }
-        } else break;
+        } else
+            break;
     }
 
-    /*while (!knnPts.empty()) {
-        cout << knnPts.top().pt[0] << " "  << knnPts.top().pt[1] << " dist: " << knnPts.top().dist << " id:" << knnPts.top().id << endl;
-        knnPts.pop();
-    }*/
+    while (!knnPts.empty()) {
+        cout << knnPts.top().pt[0] << " "  << knnPts.top().pt[1] << " dist: " << knnPts.top().dist
+    << " id:" << knnPts.top().id << endl; knnPts.pop();
+    }
 }
 
 void QuadTreeNode::snapshot() {
     ofstream log("QuadTree.csv", ios_base::app);
-    log << this->level << "," << this->isLeaf() << "," << this->data.size() << "," << this->box[XLOW] << ","
-        	<< this->box[YLOW] << "," << this->box[XHIGH] << "," << this->box[YHIGH] << endl;
+    log << level << "," << isLeaf() << "," << data.size() << "," << box[XLOW] << "," << box[YLOW]
+        << "," << box[XHIGH] << "," << box[YHIGH] << endl;
     log.close();
 
-    if (!this->isLeaf()) {
-    	for (auto c: children) c->snapshot();
-	}
+    if (!isLeaf()) {
+        for (auto c : children)
+            c->snapshot();
+    }
 }
 
 void QuadTreeNode::count(int &p, int &d, int &dpc, int &pc) {
-    if (this->isLeaf()) {
+    if (isLeaf()) {
         p++;
-        dpc += this->data.size();
+        dpc += data.size();
         return;
     }
     d++;
-    pc += this->children.size();
+    pc += children.size();
 
-    for (auto c: children) c->count(p, d, dpc, pc);
+    for (auto c : children)
+        c->count(p, d, dpc, pc);
 }
 
-void QuadTreeNode::calculateSize(int &s){
-    s += sizeof(int)  * 2 // height and capacity
+void QuadTreeNode::calculateSize(int &s) {
+    s += sizeof(int) * 2      // height and capacity
          + sizeof(float) * 4; // rectangle
-    if (this->isLeaf()) return;
-    else s += 4 * 8; // pointer size
+    if (isLeaf())
+        return;
+    else
+        s += 4 * 8; // pointer size
 
-    for (auto c: children) c->calculateSize(s);
+    for (auto c : children)
+        c->calculateSize(s);
 }
 
-void QuadTreeNode::getTreeHeight(int &h){
-    if (this->isLeaf()) {
-        if (this->level > h) h = this->level;
+void QuadTreeNode::getTreeHeight(int &h) {
+    if (isLeaf()) {
+        if (level > h)
+            h = level;
         return;
     }
 
-    for (auto c: children) c->getTreeHeight(h);
+    for (auto c : children)
+        c->getTreeHeight(h);
 }
 
-void QuadTreeNode::deleteTree(){
-    if (this->isLeaf()) {
-        for (auto c: children) c->deleteTree();
+void QuadTreeNode::deleteTree() {
+    if (isLeaf()) {
+        for (auto c : children)
+            c->deleteTree();
     }
     delete this;
 }
 
 void QuadTreeNode::getStatistics() {
     int size = 0, height = 0, pages = 0, directories = 0, dataPoints = 0, pointers = 0;
-    this->calculateSize(size);
-    this->getTreeHeight(height);
-    this->count(pages, directories, dataPoints, pointers);
-    if (POINT_SPLIT) cout << "Strategy: Optimized Point-Quad-Tree" << endl;
-    else cout << "Strategy: Point-Region-Quad-Tree" << endl;
+    calculateSize(size);
+    getTreeHeight(height);
+    count(pages, directories, dataPoints, pointers);
+    if (POINT_SPLIT)
+        cout << "Strategy: Optimized Point-Quad-Tree" << endl;
+    else
+        cout << "Strategy: Point-Region-Quad-Tree" << endl;
     cout << "Capacity: " << capacity << endl;
     cout << "Size in MB: " << size / float(1e6) << endl;
     cout << "Height: " << height << endl;
@@ -282,9 +287,7 @@ void QuadTreeNode::getStatistics() {
     cout << "Directories: " << directories << endl;
     cout << "Data points: " << dataPoints << endl;
     cout << "Internal pointers: " << pointers << endl;
-    //this->snapshot();
+    // snapshot();
 }
 
-QuadTreeNode::~QuadTreeNode(){}
-
-
+QuadTreeNode::~QuadTreeNode() {}

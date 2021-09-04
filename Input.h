@@ -19,7 +19,7 @@ public:
     array<float, 2> toKNNPoint();
     ~Record();
 
-    bool inBoundary(Record r);
+    bool intersects(Record r);
 };
 
 class Input : public vector<Record>

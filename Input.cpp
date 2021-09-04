@@ -1,14 +1,14 @@
 #include "Input.h"
 
-Record::Record(){}
+Record::Record() {}
 
-Record::Record(float id, vector<float>d){
+Record::Record(float id, vector<float> d) {
     this->id = id;
     this->box[XLOW] = this->box[XHIGH] = d[XLOW];
     this->box[YLOW] = this->box[YHIGH] = d[YLOW];
 }
 
-Record::Record(char type, vector<float> q, float id){
+Record::Record(char type, vector<float> q, float id) {
     this->type = type;
     this->id = id;
     this->box[XLOW] = q[XLOW];
@@ -17,46 +17,45 @@ Record::Record(char type, vector<float> q, float id){
     this->box[YHIGH] = q[YHIGH];
 }
 
-bool Record::inBoundary(Record r){
-    return !(this->box[XLOW] > r.box[XHIGH] || this->box[XHIGH] < r.box[XLOW]
-             || this->box[YLOW] > r.box[YHIGH] || this->box[YHIGH] < r.box[YLOW]);
+bool Record::intersects(Record r) {
+    return !(this->box[XLOW] > r.box[XHIGH] || this->box[XHIGH] < r.box[XLOW] ||
+             this->box[YLOW] > r.box[YHIGH] || this->box[YHIGH] < r.box[YLOW]);
 }
 
-array<float, 2> Record::toKNNPoint(){
-    return array<float, 2>({box[XLOW], box[YLOW]});
-}
+array<float, 2> Record::toKNNPoint() { return array<float, 2>({box[XLOW], box[YLOW]}); }
 
-Record::~Record(){}
+Record::~Record() {}
 
-Input::Input(){}
+Input::Input() {}
 
-void Input::loadData(const char *filename, int limit){
+void Input::loadData(const char *filename, int limit) {
     ifstream file(filename);
-    if(!file){
+    if (!file) {
         cerr << "Cannot open the File : " << filename << endl;
         exit(1);
     }
     string line;
     int count = 0;
-    while (getline( file, line ) ){
-        if (count == limit && limit != -1) break;
+    while (getline(file, line)) {
+        if (count == limit && limit != -1)
+            break;
         istringstream buf(line);
         float x, y, id;
         buf >> id >> x >> y;
-        this->emplace_back(id, vector<float>({x,y}));
+        this->emplace_back(id, vector<float>({x, y}));
         count++;
     }
     file.close();
 }
 
-void Input::loadQueries(const char *filename){
-    ifstream file( filename );
-    if(!file){
+void Input::loadQueries(const char *filename) {
+    ifstream file(filename);
+    if (!file) {
         cerr << "Cannot open the File : " << filename << endl;
         exit(1);
     }
     string line;
-    while (getline(file, line)){
+    while (getline(file, line)) {
         istringstream buf(line);
         char type;
         float xl, yl, xh, yh, id;
@@ -64,8 +63,7 @@ void Input::loadQueries(const char *filename){
         if (type == 'r') {
             buf >> xl >> yl >> xh >> yh >> id;
             this->emplace_back(type, vector<float>({xl, yl, xh, yh}), id);
-        }
-        else{
+        } else {
             buf >> xl >> yl >> id;
             this->emplace_back(type, vector<float>({xl, yl, xl, yl}), id);
         }
@@ -73,13 +71,12 @@ void Input::loadQueries(const char *filename){
     file.close();
 }
 
-bool Record::operator < (const Record& b) const {
-    if (this->box[XLOW] != b.box[XLOW]) return this->box[XLOW] < b.box[XLOW];
+bool Record::operator<(const Record &b) const {
+    if (this->box[XLOW] != b.box[XLOW])
+        return this->box[XLOW] < b.box[XLOW];
     return this->box[YLOW] < b.box[YLOW];
 }
 
-void Input::sortData(){
-    sort(this->begin(), this->end());
-}
+void Input::sortData() { sort(this->begin(), this->end()); }
 
-Input::~Input(){}
+Input::~Input() {}

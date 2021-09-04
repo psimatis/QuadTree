@@ -17,7 +17,7 @@ public :
 
     QuadTreeNode(vector<float> boundary, int capacity, int level);
     void insert(Record);
-    bool inBoundary(Record r);
+    // bool inBoundary(Record r);
     bool intersects(Record r);
     void rangeQuery(Record q, vector<float> &results, map<string, double> &map);
     void kNNQuery(array<float, 2> p, map<string, double> &stats, int k);
