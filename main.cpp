@@ -34,8 +34,7 @@ int main(int argc, char **argv){
             map<string, double> stats;
             startTime = high_resolution_clock::now();
             tree->rangeQuery(q, results, stats);
-            cout << "results count: " << results.size() << endl;
-
+            //cout << "results count: " << results.size() << endl;
             rangeLog["time " + to_string(q.id)] += duration_cast<microseconds>(
                     high_resolution_clock::now() - startTime).count();
             rangeLog["count " + to_string(q.id)]++;
@@ -46,7 +45,7 @@ int main(int argc, char **argv){
         else if (q.type == 'k') {
             map<string, double> stats;
             auto kNNPoint = q.toKNNPoint();
-			cout << "knn" << endl;
+			//cout << "knn" << endl;
             startTime = high_resolution_clock::now();
             tree->kNNQuery(kNNPoint, stats, q.id);
             knnLog["time " + to_string(q.id)] += duration_cast<microseconds>(
@@ -62,21 +61,26 @@ int main(int argc, char **argv){
             inLog["time"] += duration_cast<microseconds>(high_resolution_clock::now() - startTime).count();
             inLog["count"]++;
         }
+        else{
+    		cout << "---Insertions---" << endl;
+    		for (auto it = inLog.begin(); it != inLog.end(); ++it){
+        		cout << it->first << ": " << it->second << endl;
+				it->second = 0;
+			}
+    		cout << "---Range---" << endl;
+    		for (auto it = rangeLog.begin(); it != rangeLog.end(); ++it){
+        		cout<< it->first << ": " << it->second << endl;
+        		it->second = 0;
+        	}
+    		cout << "---KNN---" << endl;
+    		for (auto it = knnLog.begin(); it != knnLog.end(); ++it){
+        		cout<< it->first << ": " << it->second << endl;
+        		it->second = 0;
+        	}
+    		cout << "---Quad-Tree Statistics---" << endl;
+    		tree->getStatistics();
+    	}
     }
-    cout << "---Insertions---" << endl;
-    for (auto it = inLog.cbegin(); it != inLog.cend(); ++it)
-        cout << it->first << ": " << it->second << endl;
-
-    cout << "---Range---" << endl;
-    for (auto it = rangeLog.cbegin(); it != rangeLog.cend(); ++it)
-        cout<< it->first << ": " << it->second << endl;
-
-    cout << "---KNN---" << endl;
-    for (auto it = knnLog.cbegin(); it != knnLog.cend(); ++it)
-        cout<< it->first << ": " << it->second << endl;
-
-    cout << "---Quad-Tree Statistics---" << endl;
-    tree->getStatistics();
     tree->deleteTree();
     return 0;
 }

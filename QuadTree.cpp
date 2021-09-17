@@ -95,12 +95,12 @@ void QuadTreeNode::rangeQuery(Record q, vector<float> &resultItemsIds, map<strin
     if (isLeaf()) {
         if (intersects(q)) {
             stats["leaf"]++;
-            for (auto r : data) {
+            /*for (auto r : data) {
                 if (q.intersects(r)) {
                     //cout << r.id << " " << r.box[XLOW] << " " << r.box[YLOW] << endl;
                     resultItemsIds.push_back(r.id);
                 }
-            }
+            }*/
         }
         return;
     } else {
@@ -202,11 +202,11 @@ void QuadTreeNode::kNNQuery(array<float, 2> q, map<string, double> &stats, int k
             break;
     }
 
-    while (!knnPts.empty()) {
+    /*while (!knnPts.empty()) {
         cout << knnPts.top().pt[0] << " " << knnPts.top().pt[1] << " dist: " << knnPts.top().dist
              << " id:" << knnPts.top().id << endl;
         knnPts.pop();
-    }
+    }*/
 }
 
 void QuadTreeNode::snapshot() {
@@ -235,7 +235,7 @@ void QuadTreeNode::count(int &p, int &d, int &dpc, int &pc) {
 }
 
 void QuadTreeNode::calculateSize(int &s) {
-    s += sizeof(int) * 2      // height and capacity
+    s += sizeof(int)      // height and capacity
          + sizeof(float) * 4; // rectangle
     if (isLeaf())
         return;
