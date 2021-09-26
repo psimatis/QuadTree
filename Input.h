@@ -26,8 +26,6 @@ public:
 class Input : public vector<Record>
 {
 public:
-    size_t numRecords;
-
     Input();
     void loadData(const char *filename, int limit);
     void loadQueries(const char *filename);

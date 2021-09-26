@@ -3,8 +3,7 @@
 #define all(c) c.begin(), c.end()
 #define dist(x1, y1, x2, y2) (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
 
-QuadTreeNode::QuadTreeNode(vector<float> _boundary, int _capacity, int _level) {
-    capacity = _capacity;
+QuadTreeNode::QuadTreeNode(vector<float> _boundary, int _level) {
     box = _boundary;
     level = _level;
 }
@@ -22,7 +21,7 @@ void QuadTreeNode::packing(Input &R) {
 }
 
 void QuadTreeNode::packing() {
-    if (data.size() > capacity) {
+    if (data.size() > CAPACITY) {
         if (isLeaf())
             divide();
         for (auto r : data) {
@@ -42,7 +41,7 @@ void QuadTreeNode::packing() {
 void QuadTreeNode::insert(Record r) {
     if (isLeaf()) {
         data.push_back(r);
-        if (data.size() > capacity) {
+        if (data.size() > CAPACITY) {
             divide();
             for (auto rec : data) {
                 auto c = children.begin();
@@ -74,16 +73,16 @@ void QuadTreeNode::divide() {
     }
 
     vector<float> northWest = {box[XLOW], yMid, xMid, box[YHIGH]};
-    children[NW] = new QuadTreeNode(northWest, capacity, level + 1);
+    children[NW] = new QuadTreeNode(northWest, level + 1);
 
     vector<float> northEast = {xMid, yMid, box[XHIGH], box[YHIGH]};
-    children[NE] = new QuadTreeNode(northEast, capacity, level + 1);
+    children[NE] = new QuadTreeNode(northEast, level + 1);
 
     vector<float> southWest = {box[XLOW], box[YLOW], xMid, yMid};
-    children[SW] = new QuadTreeNode(southWest, capacity, level + 1);
+    children[SW] = new QuadTreeNode(southWest, level + 1);
 
     vector<float> southEast = {xMid, box[YLOW], box[XHIGH], yMid};
-    children[SE] = new QuadTreeNode(southEast, capacity, level + 1);
+    children[SE] = new QuadTreeNode(southEast, level + 1);
 }
 
 bool QuadTreeNode::intersects(Record q) {
@@ -273,7 +272,7 @@ void QuadTreeNode::getStatistics() {
         cout << "Strategy: Optimized Point-Quad-Tree" << endl;
     else
         cout << "Strategy: Point-Region-Quad-Tree" << endl;
-    cout << "Capacity: " << capacity << endl;
+    cout << "Capacity: " << CAPACITY << endl;
     cout << "Size in MB: " << size / float(1e6) << endl;
     cout << "Height: " << height << endl;
     cout << "Pages: " << pages << endl;

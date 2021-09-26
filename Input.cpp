@@ -2,24 +2,30 @@
 
 Record::Record() {}
 
-Record::Record(float id, vector<float> d) {
-    this->id = id;
-    this->box[XLOW] = this->box[XHIGH] = d[XLOW];
-    this->box[YLOW] = this->box[YHIGH] = d[YLOW];
+Record::Record(float _id, vector<float> r) {
+    id = _id;
+    box[XLOW] = box[XHIGH] = r[XLOW];
+    box[YLOW] = box[YHIGH] = r[YLOW];
 }
 
-Record::Record(char type, vector<float> q, float id) {
-    this->type = type;
-    this->id = id;
-    this->box[XLOW] = q[XLOW];
-    this->box[YLOW] = q[YLOW];
-    this->box[XHIGH] = q[XHIGH];
-    this->box[YHIGH] = q[YHIGH];
+Record::Record(char _type, vector<float> r, float _id) {
+    type = _type;
+    id = _id;
+    box[XLOW] = r[XLOW];
+    box[YLOW] = r[YLOW];
+    box[XHIGH] = r[XHIGH];
+    box[YHIGH] = r[YHIGH];
 }
 
 bool Record::intersects(Record r) {
-    return !(this->box[XLOW] > r.box[XHIGH] || this->box[XHIGH] < r.box[XLOW] ||
-             this->box[YLOW] > r.box[YHIGH] || this->box[YHIGH] < r.box[YLOW]);
+    return !(box[XLOW] > r.box[XHIGH] || box[XHIGH] < r.box[XLOW] ||
+             box[YLOW] > r.box[YHIGH] || box[YHIGH] < r.box[YLOW]);
+}
+
+bool Record::operator<(const Record &b) const {
+    if (box[XLOW] != b.box[XLOW])
+        return box[XLOW] < b.box[XLOW];
+    return box[YLOW] < b.box[YLOW];
 }
 
 array<float, 2> Record::toKNNPoint() { return array<float, 2>({box[XLOW], box[YLOW]}); }
@@ -42,7 +48,7 @@ void Input::loadData(const char *filename, int limit) {
         istringstream buf(line);
         float x, y, id;
         buf >> id >> x >> y;
-        this->emplace_back(id, vector<float>({x, y}));
+        emplace_back(id, vector<float>({x, y}));
         count++;
     }
     file.close();
@@ -62,21 +68,15 @@ void Input::loadQueries(const char *filename) {
         buf >> type;
         if (type == 'r') {
             buf >> xl >> yl >> xh >> yh >> id;
-            this->emplace_back(type, vector<float>({xl, yl, xh, yh}), id);
+            emplace_back(type, vector<float>({xl, yl, xh, yh}), id);
         } else {
             buf >> xl >> yl >> id;
-            this->emplace_back(type, vector<float>({xl, yl, xl, yl}), id);
+            emplace_back(type, vector<float>({xl, yl, xl, yl}), id);
         }
     }
     file.close();
 }
 
-bool Record::operator<(const Record &b) const {
-    if (this->box[XLOW] != b.box[XLOW])
-        return this->box[XLOW] < b.box[XLOW];
-    return this->box[YLOW] < b.box[YLOW];
-}
-
-void Input::sortData() { sort(this->begin(), this->end()); }
+void Input::sortData() { sort(begin(), end()); }
 
 Input::~Input() {}

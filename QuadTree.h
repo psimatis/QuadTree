@@ -11,13 +11,11 @@ class QuadTreeNode{
 public :
     vector<QuadTreeNode*> children = vector<QuadTreeNode*>(4);
     Input data;
-    int capacity;
     int level;
     vector<float> box;
 
-    QuadTreeNode(vector<float> boundary, int capacity, int level);
+    QuadTreeNode(vector<float> boundary, int level);
     void insert(Record);
-    bool contains(Record r);
     bool intersects(Record r);
     void rangeQuery(Record q, vector<float> &results, map<string, double> &map);
     void kNNQuery(array<float, 2> p, map<string, double> &stats, int k);
