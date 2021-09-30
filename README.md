@@ -29,8 +29,11 @@ The code supports two splitting strategies for node overflows.
 
 You can change the partitioning method in *def.h*.
 
-![Alt text](/path/to/QuadTreePointSplit.png "Optimized Point Split")
-![Alt text](/path/to/QuadTreeRegionSplit.png "Region Split")
+<p float="left">
+<img src="./QuadTreePointSplit.png" style="width:49%" title="Optimized Point Split"> 
+<img src="./QuadTreeRegionSplit.png" style="width:49%" title="Region Split">
+</p>
+
 
 ## Index parameters
 The index parameters such as capacity and strategy used can be tuned in *def.h*.
