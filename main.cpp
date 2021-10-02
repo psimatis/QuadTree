@@ -12,7 +12,6 @@ int main(int argc, char **argv){
         exit(1);
     }
 
-    int capacity = atoi(argv[1]);
 	int limit = atoi(argv[2]);
 
     vector<float> boundary = {-180.0, -90.0, 180.0, 90.0};
