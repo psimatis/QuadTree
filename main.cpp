@@ -79,7 +79,6 @@ int main(int argc, char **argv){
     		tree->getStatistics();
     	}
     }
-    tree->deleteTree();
     return 0;
 }
 

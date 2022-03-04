@@ -5,7 +5,7 @@
 #define POINT_SPLIT true     // Optimized Point-Quad-Tree: splits the bucket on the median point
 //#define POINT_SPLIT false    // Point-Region-Quad-Tree: divides the bucket to equal sized regions
 
-#define CAPACITY 512
+#define CAPACITY 128
 
 #define XLOW 0
 #define YLOW 1
