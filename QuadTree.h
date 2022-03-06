@@ -15,9 +15,9 @@ public :
     vector<float> box;
 
     QuadTreeNode(vector<float> boundary, int level);
-    void insert(Record);
+    void insert(Record, map<string, double> &stats);
     bool intersects(Record r);
-    void rangeQuery(Record q, vector<float> &results, map<string, double> &map);
+    void rangeQuery(Record q, vector<float> &results, map<string, double> &stats);
     void kNNQuery(array<float, 2> p, map<string, double> &stats, int k);
     void deleteTree();
     void calculateSize(int &);
@@ -29,7 +29,7 @@ public :
     void divide();
     void count(int &, int &, int &, int &);
     bool isLeaf();
-    void getStatistics();
+    map<string, float> getStatistics();
     ~QuadTreeNode();
 };
 

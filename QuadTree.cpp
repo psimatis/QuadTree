@@ -38,11 +38,13 @@ void QuadTreeNode::packing() {
     }
 }
 
-void QuadTreeNode::insert(Record r) {
+void QuadTreeNode::insert(Record r, map<string, double> &stats) {
     if (isLeaf()) {
         data.push_back(r);
+        stats["IO"] = 2;
         if (data.size() > CAPACITY) {
             divide();
+            stats["IO"] += 3;
             for (auto rec : data) {
                 auto c = children.begin();
                 while (!(*c)->intersects(rec))
@@ -55,7 +57,7 @@ void QuadTreeNode::insert(Record r) {
         auto c = children.begin();
         while (!(*c)->intersects(r))
             c++;
-        (*c)->insert(r);
+        (*c)->insert(r, stats);
     }
 }
 
@@ -263,23 +265,21 @@ void QuadTreeNode::deleteTree() {
     delete this;
 }
 
-void QuadTreeNode::getStatistics() {
+map<string, float> QuadTreeNode::getStatistics() {
     int size = 0, height = 0, pages = 0, directories = 0, dataPoints = 0, pointers = 0;
     calculateSize(size);
-    getTreeHeight(height);
+    // getTreeHeight(height);
     count(pages, directories, dataPoints, pointers);
-    if (POINT_SPLIT)
-        cout << "Strategy: Optimized Point-Quad-Tree" << endl;
-    else
-        cout << "Strategy: Point-Region-Quad-Tree" << endl;
-    cout << "Capacity: " << CAPACITY << endl;
-    cout << "Size in MB: " << size / float(1e6) << endl;
-    cout << "Height: " << height << endl;
-    cout << "Pages: " << pages << endl;
-    cout << "Directories: " << directories << endl;
-    cout << "Data points: " << dataPoints << endl;
-    cout << "Internal pointers: " << pointers << endl;
     // snapshot();
+
+	map<string, float> stats;
+	stats["size"] = size / float(1e6);
+	stats["directories"] = directories;
+	stats["pages"] = pages;
+    // log << "QuadTree size in MB: " << size / float(1e6) << endl; // pointer's size
+    // log << "No. of directories: " << directories << endl;
+    // log << "No. of pages: " << pages << endl;
+	return stats;
 }
 
 QuadTreeNode::~QuadTreeNode() {}
