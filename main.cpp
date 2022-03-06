@@ -15,7 +15,7 @@ struct Stats {
 };
 
 void createQuerySet(string fileName, vector<tuple<char, vector<float>, float>> &queryArray) {
-    cout << "Begin query creation for RTree" << endl;
+    cout << "Begin query creation for QuadTree" << endl;
     string line;
 
     ifstream file(fileName);
@@ -41,7 +41,7 @@ void createQuerySet(string fileName, vector<tuple<char, vector<float>, float>> &
         }
         file.close();
     }
-    cout << "Finish query creation for RTree" << endl;
+    cout << "Finish query creation for QuadTree" << endl;
 }
 
 
@@ -86,8 +86,12 @@ void rangeQuery(tuple<char, vector<float>, float> q, QuadTreeNode *index, Stats 
 
 void insertQuery(tuple<char, vector<float>, float> q, QuadTreeNode *index, Stats &stats) {
     Record rec;
-    for (uint i = 0; i < rec.box.size(); i++)
+    for (uint i = 0; i < rec.box.size() / 2; i++){
         rec.box[i] = get<1>(q)[i];
+        rec.box[i+2] = get<1>(q)[i];
+    }
+    
+    //cout << rec.box[0] << ","<< rec.box[1] << ","<< rec.box[2] << ","<< rec.box[3] << endl;
     rec.id = get<2>(q);
     rec.type = get<0>(q);
     map<string, double> info;
@@ -211,7 +215,7 @@ void evaluate(QuadTreeNode *index, string queryFile, string logFile) {
             // cerr << endl;
         }
         file.close();
-    }
+    } else cerr << "Error with query file! Path: " << queryFile << endl;
     cout << "Finish Querying..." << endl;
 }
 
@@ -225,6 +229,7 @@ int main(int argCount, char **args) {
     string sign = "-" + to_string(directoryCap);
     // sign += "-T" + to_string(int(100 * TOLERANCE));
 
+	
     string expPath = projectPath + "/Experiments/";
     string prefix = expPath + queryType + "/";
     string queryFile = projectPath + "/Queries/" + queryType + ".txt";
@@ -235,6 +240,9 @@ int main(int argCount, char **args) {
     int offset = 0;
 
     cout << "---Generation--- " << endl;
+
+
+    cout << "DEBUG: " << prefix + "log" + sign + ".txt" << endl;
 
     string logFile = prefix + "log" + sign + ".txt";
     ofstream log(logFile);

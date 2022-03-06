@@ -47,8 +47,12 @@ void QuadTreeNode::insert(Record r, map<string, double> &stats) {
             stats["IO"] += 3;
             for (auto rec : data) {
                 auto c = children.begin();
-                while (!(*c)->intersects(rec))
-                    c++;
+                // cout << "point:" << rec.box[0] << ", "<< rec.box[1] << ", "<< rec.box[2] << ", "<< rec.box[3] << endl;
+                // cout << "node: " << (*c)->box[0] << ", "<< (*c)->box[1] << ", "<< (*c)->box[2] << ", "<< (*c)->box[3] << endl;
+                while (!(*c)->intersects(rec)){	
+                	c++;
+                	// cout << "node: " << (*c)->box[0] << ","<< (*c)->box[1] << ","<< (*c)->box[2] << ","<< (*c)->box[3] << endl;
+                }
                 (*c)->data.push_back(rec);
             }
             data.clear();
