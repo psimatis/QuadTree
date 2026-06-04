@@ -1,3 +1,13 @@
+> [!CAUTION]
+> # <font color="red">⚠️ OBSOLETE / DEPRECATED ⚠️</font>
+> **This repository is no longer maintained.**
+> 
+> An improved version has been integrated into the *Indexicon* library. 
+> 
+> ### 👉 Use [Indexicon-Spatial-Library](https://github.com/psimatis/Indexicon-Spatial-Library) instead. 👈
+
+***
+
 # Quad-Tree
 
 The Quad-Tree is an umbrella term for popular spatial indexes that subdivide the space into quadrants.
